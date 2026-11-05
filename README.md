@@ -1,67 +1,128 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bikrify.io
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Bikrify.io is a Laravel application for presenting Bikrify's business software services and managing demo requests and customer relationships. The public site includes service pages and contact/subscription forms; the password-protected admin area supports lead follow-up, prospect imports, and customer/payment records.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Public home page and database-driven service pages.
+- Demo request form with validation and rate limiting. Requests are queued for email notifications.
+- Newsletter subscription form.
+- HTTP Basic Authentication-protected admin pages for leads, prospects, and customers.
+- Prospect import from CSV, XLS, and XLSX files.
+- Customer and payment tracking, including license status lookup.
+- Sitemap, policies, security, case studies, and service status pages.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2 or newer
+- Composer
+- Node.js and npm
+- PHP extensions required by Laravel 12 and PhpSpreadsheet
 
-## Learning Laravel
+## Local setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Run the following from the project root:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```sh
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The default database connection is SQLite. Create the database file if it does not exist, then apply migrations and seed the initial service content and admin user:
 
-## Laravel Sponsors
+```sh
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+php artisan migrate --seed
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Before seeding, set the admin email and password in `.env` if you do not want the defaults:
 
-### Premium Partners
+```dotenv
+BIKRIFY_ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=replace-with-a-strong-password
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+The admin account is created only if it does not already exist. If `ADMIN_PASSWORD` is unset on first seeding, Laravel generates a random password and prints the credentials to the command output. Save that password securely. Seeding again will not change an existing admin password.
 
-## Contributing
+Build the front-end assets and start the application:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```sh
+npm run build
+php artisan serve --host=127.0.0.1 --port=8001
+```
 
-## Code of Conduct
+Visit [http://127.0.0.1:8001](http://127.0.0.1:8001). To work on the front end with Vite hot reload, run `npm run dev` in a separate terminal instead of using the production asset build.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Demo requests are processed by Laravel's queue. For local development, start a worker in another terminal:
 
-## Security Vulnerabilities
+```sh
+php artisan queue:listen --tries=1
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The example environment uses the `log` mailer, which writes outgoing mail to the application log rather than delivering it. Configure a real mail transport in `.env` to send email.
+
+## Configuration
+
+Application-specific settings are read from `.env`:
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `BIKRIFY_ADMIN_EMAIL` | Admin account email and recipient for demo notifications | `admin@example.com` |
+| `ADMIN_PASSWORD` | Password for the admin account when it is first seeded | Randomly generated if unset |
+| `BIKRIFY_EMAIL` | Public contact email | `hello@example.com` |
+| `BIKRIFY_PHONE` | Public contact phone number | `+880 1768-002727` |
+| `BIKRIFY_WHATSAPP` | WhatsApp number | `8801768002727` |
+| `BIKRIFY_ADDRESS` | Public business address | `Dhaka, Bangladesh` |
+
+Laravel's standard environment variables also control the database, mail, queue, cache, session, and application URL. Do not commit `.env` or production credentials.
+
+## Routes
+
+| Path | Description |
+| --- | --- |
+| `/` | Public home page |
+| `/services/{service}` | Service details, addressed by service slug |
+| `/demo` | Submit a demo request |
+| `/subscribe` | Subscribe an email address |
+| `/sitemap.xml` | XML sitemap |
+| `/policies` | Policies |
+| `/security` | Security information |
+| `/case-studies` | Case studies |
+| `/status` | Application and database status |
+| `/admin/leads` | View and update demo leads (HTTP Basic Authentication) |
+| `/admin/prospects` | Review and import prospects (HTTP Basic Authentication) |
+| `/admin/customers` | View and manage customers and payments (HTTP Basic Authentication) |
+| `/api/license/{key}` | Return the status associated with a license key |
+
+The admin routes use Laravel HTTP Basic Authentication. Use the seeded admin email and password when prompted by the browser.
+
+## Development and tests
+
+Run the automated test suite with:
+
+```sh
+php artisan test
+```
+
+Useful commands:
+
+```sh
+php artisan route:list
+php artisan migrate:status
+npm run dev
+npm run build
+```
+
+## Deployment notes
+
+- Set `APP_ENV=production`, `APP_DEBUG=false`, a secure `APP_KEY`, and production-specific database and mail settings.
+- Use a real mail transport and run a persistent queue worker so demo request emails are delivered.
+- Build front-end assets with `npm run build`.
+- Run database migrations during deployment with `php artisan migrate --force`.
+- Set a strong `ADMIN_PASSWORD` before creating the first admin user. Do not use the example credentials in a public deployment.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# Bikrify.io
+No project-specific license is currently declared. Contact the project owner before redistributing this application.
