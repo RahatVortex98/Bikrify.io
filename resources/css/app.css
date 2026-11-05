@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+@source '../**/*.blade.php';
+@theme {
+ --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+ --color-ink: #12296b; --color-brand: #1e3a8a; --color-spark: #f97316; --color-mist: #f4f7ff;
+}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
