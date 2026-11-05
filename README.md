@@ -14,7 +14,7 @@ Bikrify.io is a Laravel application for presenting Bikrify's business software s
 
 ## Requirements
 
-- PHP 8.2 or newer
+- PHP 8.4.1 or newer
 - Composer
 - Node.js and npm
 - PHP extensions required by Laravel 12 and PhpSpreadsheet
