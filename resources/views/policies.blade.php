@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('title','Rules & Policies | Bikrify')
+@section('desc','Review Bikrify customer terms covering subscriptions, payments, customer responsibilities, and data handling.')
 @section('content')
 @php
 $sections=[
