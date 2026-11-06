@@ -9,7 +9,7 @@
 <header class="sticky top-0 z-30 bg-ink"><div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
  <a href="/admin/prospects" aria-label="Admin home"><x-logo :dark="true"/></a>
  <nav class="flex flex-wrap gap-1 text-sm" aria-label="Admin">
-  @foreach(['/admin/prospects'=>['Customer hunting','admin/prospects*'],'/admin/customers'=>['Customers & billing','admin/customers*'],'/admin/leads'=>['Website leads','admin/leads*']] as $u=>[$l,$p])
+  @foreach(['/admin/prospects'=>['Customer hunting','admin/prospects*'],'/admin/customers'=>['Customers & billing','admin/customers*'],'/admin/leads'=>['Website leads','admin/leads*'],'/admin/blog/posts'=>['Blog posts','admin/blog/posts*'],'/admin/homepage/what-we-build'=>['Homepage cards','admin/homepage/what-we-build*']] as $u=>[$l,$p])
    <a href="{{ $u }}" class="rounded-full px-4 py-2 {{ request()->is($p)?'bg-white text-brand':'text-slate-200 hover:bg-white/10' }}">{{ $l }}</a>
   @endforeach
  </nav>

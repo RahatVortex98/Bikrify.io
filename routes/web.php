@@ -1,13 +1,33 @@
 <?php
 use App\Http\Controllers\SiteController as S;
+use App\Http\Controllers\BlogController as B;
+use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\HomeBuildItemController as AdminHomeBuildItemController;
 use Illuminate\Support\Facades\Route;
-Route::get('/',[S::class,'home'])->name('home');
+Route::redirect('/', '/e-commerce-software-company-bangladesh', 301);
+Route::get('/e-commerce-software-company-bangladesh',[S::class,'home'])->name('home');
+Route::redirect('/services/online-store-order-system','/services/order-management-system-for-facebook-sellers',301);
+Route::redirect('/services/pos-inventory-system','/services/pos-software-bangladesh',301);
+Route::redirect('/services/custom-erp-automation','/services/custom-erp-software-bangladesh',301);
 Route::get('/services/{service:slug}',[S::class,'service'])->name('service');
 Route::post('/demo',[S::class,'demo'])->middleware('throttle:5,1')->name('demo');
-Route::get('/sitemap.xml',[S::class,'sitemap']);
+Route::get('/sitemap.xml',[S::class,'sitemap'])->name('sitemap');
+Route::get('/blog',[B::class,'index'])->name('blog.index');
+Route::get('/blog/{post:slug}',[B::class,'show'])->name('blog.show');
 Route::middleware('auth.basic')->prefix('admin')->group(function(){
  Route::get('/leads',[S::class,'leads'])->name('leads');
  Route::patch('/leads/{lead}',[S::class,'mark'])->name('leads.mark');
+ Route::get('/blog/posts',[AdminPostController::class,'index'])->name('admin.blog.index');
+ Route::get('/blog/posts/create',[AdminPostController::class,'create'])->name('admin.blog.create');
+ Route::post('/blog/posts',[AdminPostController::class,'store'])->name('admin.blog.store');
+ Route::get('/blog/posts/{post}/edit',[AdminPostController::class,'edit'])->name('admin.blog.edit');
+ Route::put('/blog/posts/{post}',[AdminPostController::class,'update'])->name('admin.blog.update');
+ Route::get('/homepage/what-we-build',[AdminHomeBuildItemController::class,'index'])->name('admin.home-build.index');
+ Route::get('/homepage/what-we-build/create',[AdminHomeBuildItemController::class,'create'])->name('admin.home-build.create');
+ Route::post('/homepage/what-we-build',[AdminHomeBuildItemController::class,'store'])->name('admin.home-build.store');
+ Route::get('/homepage/what-we-build/{homeBuildItem}/edit',[AdminHomeBuildItemController::class,'edit'])->name('admin.home-build.edit');
+ Route::put('/homepage/what-we-build/{homeBuildItem}',[AdminHomeBuildItemController::class,'update'])->name('admin.home-build.update');
+ Route::delete('/homepage/what-we-build/{homeBuildItem}',[AdminHomeBuildItemController::class,'destroy'])->name('admin.home-build.destroy');
 });
 use App\Http\Controllers\CrmController as C;
 Route::post('/subscribe',[C::class,'subscribe'])->middleware('throttle:5,1');

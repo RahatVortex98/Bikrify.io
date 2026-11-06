@@ -5,9 +5,11 @@ Bikrify.io is a Laravel application for presenting Bikrify's business software s
 ## Features
 
 - Public home page and database-driven service pages.
+- Search metadata, structured data, robots directives, and an XML sitemap.
+- Public blog with scheduled publishing and article structured data.
 - Demo request form with validation and rate limiting. Requests are queued for email notifications.
 - Newsletter subscription form.
-- HTTP Basic Authentication-protected admin pages for leads, prospects, and customers.
+- HTTP Basic Authentication-protected admin pages for leads, prospects, customers, blog posts, and homepage service cards.
 - Prospect import from CSV, XLS, and XLSX files.
 - Customer and payment tracking, including license status lookup.
 - Sitemap, policies, security, case studies, and service status pages.
@@ -82,8 +84,11 @@ Laravel's standard environment variables also control the database, mail, queue,
 
 | Path | Description |
 | --- | --- |
-| `/` | Public home page |
+| `/` | Redirects to the canonical home page |
+| `/e-commerce-software-company-bangladesh` | Public home page |
 | `/services/{service}` | Service details, addressed by service slug |
+| `/blog` | Published blog articles |
+| `/blog/{post}` | Published article |
 | `/demo` | Submit a demo request |
 | `/subscribe` | Subscribe an email address |
 | `/sitemap.xml` | XML sitemap |
@@ -94,9 +99,17 @@ Laravel's standard environment variables also control the database, mail, queue,
 | `/admin/leads` | View and update demo leads (HTTP Basic Authentication) |
 | `/admin/prospects` | Review and import prospects (HTTP Basic Authentication) |
 | `/admin/customers` | View and manage customers and payments (HTTP Basic Authentication) |
+| `/admin/blog/posts` | Create and edit blog posts (HTTP Basic Authentication) |
+| `/admin/homepage/what-we-build` | Add, edit, reorder, and remove homepage “What we build” cards (HTTP Basic Authentication) |
 | `/api/license/{key}` | Return the status associated with a license key |
 
 The admin routes use Laravel HTTP Basic Authentication. Use the seeded admin email and password when prompted by the browser.
+
+Blog posts remain private until they have a publication date and time that is not in the future. The admin editor stores article bodies in Markdown, along with excerpts and meta descriptions. Public article links are included in the sitemap after publication.
+
+Homepage cards in “What we build” can be managed from the homepage cards admin page. Each card has a title, short description, display order, and a link that can point to an internal path, page anchor, or HTTPS URL.
+
+To load the five starter articles as drafts, run `php artisan db:seed --class=BlogSeeder`. The seeder only creates missing posts, so running it again will not overwrite edits or change publication status.
 
 ## Development and tests
 
@@ -118,6 +131,7 @@ npm run build
 ## Deployment notes
 
 - Set `APP_ENV=production`, `APP_DEBUG=false`, a secure `APP_KEY`, and production-specific database and mail settings.
+- Set `APP_URL=https://bikrify.io` so canonical links and generated URLs use the production domain.
 - Use a real mail transport and run a persistent queue worker so demo request emails are delivered.
 - Build front-end assets with `npm run build`.
 - Run database migrations during deployment with `php artisan migrate --force`.
