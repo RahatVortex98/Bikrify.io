@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api
 
-Sitemap: https://bikrify.io/sitemap.xml
+Sitemap: https://bikrify.xyz/sitemap.xml

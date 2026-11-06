@@ -91,7 +91,8 @@ class SeoAndBlogTest extends TestCase
 
     public function test_homepage_what_we_build_cards_are_admin_customizable(): void
     {
-        User::create([
+        $admin = User::forceCreate([
+            'is_admin' => true,
             'name' => 'Homepage editor',
             'email' => 'homepage-editor@example.test',
             'password' => Hash::make('secure-test-password'),
@@ -103,7 +104,7 @@ class SeoAndBlogTest extends TestCase
             ->assertSee('Practical software shaped around the way your business works today')
             ->assertSee(Service::firstOrFail()->title);
 
-        $this->withBasicAuth('homepage-editor@example.test', 'secure-test-password')
+        $this->actingAs($admin)
             ->post(route('admin.home-build.store'), [
                 'title' => 'Retail analytics',
                 'description' => 'Review store activity and keep useful business records together.',
@@ -115,7 +116,7 @@ class SeoAndBlogTest extends TestCase
         $item = HomeBuildItem::where('title', 'Retail analytics')->firstOrFail();
         $this->get(route('home'))->assertSee('Retail analytics')->assertSee('/services/retail-analytics');
 
-        $this->withBasicAuth('homepage-editor@example.test', 'secure-test-password')
+        $this->actingAs($admin)
             ->put(route('admin.home-build.update', $item), [
                 'title' => 'Retail reporting',
                 'description' => 'A clearer view of your shop records.',
@@ -131,7 +132,7 @@ class SeoAndBlogTest extends TestCase
             'sort' => 0,
         ]);
 
-        $this->withBasicAuth('homepage-editor@example.test', 'secure-test-password')
+        $this->actingAs($admin)
             ->post(route('admin.home-build.store'), [
                 'title' => 'Unsafe link',
                 'description' => 'Invalid link should not be accepted.',
@@ -246,13 +247,14 @@ class SeoAndBlogTest extends TestCase
 
     public function test_authenticated_admin_can_create_and_edit_blog_posts(): void
     {
-        User::create([
+        $admin = User::forceCreate([
+            'is_admin' => true,
             'name' => 'Blog editor',
             'email' => 'editor@example.test',
             'password' => Hash::make('secure-test-password'),
         ]);
 
-        $this->withBasicAuth('editor@example.test', 'secure-test-password')
+        $this->actingAs($admin)
             ->post(route('admin.blog.store'), [
                 'title' => 'Planning a useful order workflow',
                 'excerpt' => 'A practical starting point for organizing daily orders.',
@@ -265,7 +267,7 @@ class SeoAndBlogTest extends TestCase
         $post = Post::where('slug', 'planning-a-useful-order-workflow')->firstOrFail();
         $this->assertNull($post->published_at);
 
-        $this->withBasicAuth('editor@example.test', 'secure-test-password')
+        $this->actingAs($admin)
             ->put(route('admin.blog.update', $post), [
                 'title' => 'Planning a better order workflow',
                 'slug' => 'planning-a-better-order-workflow',
@@ -285,14 +287,15 @@ class SeoAndBlogTest extends TestCase
 
     public function test_admin_publication_time_is_saved_as_bangladesh_time(): void
     {
-        User::create([
+        $admin = User::forceCreate([
+            'is_admin' => true,
             'name' => 'Blog editor',
             'email' => 'publisher@example.test',
             'password' => Hash::make('secure-test-password'),
         ]);
         $localPublicationTime = now()->timezone('Asia/Dhaka')->format('Y-m-d\TH:i');
 
-        $this->withBasicAuth('publisher@example.test', 'secure-test-password')
+        $this->actingAs($admin)
             ->post(route('admin.blog.store'), [
                 'title' => 'A Bangladesh time test',
                 'excerpt' => 'A post created using the local publication time.',
