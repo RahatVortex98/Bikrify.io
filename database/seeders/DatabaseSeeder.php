@@ -173,6 +173,7 @@ class DatabaseSeeder extends Seeder
         );
 
         if ($admin->wasRecentlyCreated) {
+            $admin->forceFill(['is_admin' => true])->save();
             $this->command->info('Admin login: '.config('bikrify.admin_email').' / '.$password);
         } else {
             $this->command->info('Admin account already exists; its password was not changed.');

@@ -4,6 +4,17 @@ use App\Http\Controllers\BlogController as B;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\HomeBuildItemController as AdminHomeBuildItemController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Middleware\EnsureAdmin;
+
+Route::get('/admin/login', [AuthController::class, 'create'])->middleware('guest')->name('login');
+Route::post('/admin/login', [AuthController::class, 'store'])->middleware(['guest', 'throttle:5,1'])->name('admin.login.store');
+Route::middleware(['auth', 'auth.session', EnsureAdmin::class])->prefix('admin')->group(function () {
+    Route::redirect('/', '/admin/leads');
+    Route::post('/logout', [AuthController::class, 'destroy'])->name('admin.logout');
+    Route::resource('users', UserController::class)->except(['show', 'destroy'])->names('admin.users');
+});
 Route::redirect('/', '/e-commerce-software-company-bangladesh', 301);
 Route::get('/e-commerce-software-company-bangladesh',[S::class,'home'])->name('home');
 Route::redirect('/services/online-store-order-system','/services/order-management-system-for-facebook-sellers',301);
@@ -14,7 +25,7 @@ Route::post('/demo',[S::class,'demo'])->middleware('throttle:5,1')->name('demo')
 Route::get('/sitemap.xml',[S::class,'sitemap'])->name('sitemap');
 Route::get('/blog',[B::class,'index'])->name('blog.index');
 Route::get('/blog/{post:slug}',[B::class,'show'])->name('blog.show');
-Route::middleware('auth.basic')->prefix('admin')->group(function(){
+Route::middleware(['auth', 'auth.session', EnsureAdmin::class])->prefix('admin')->group(function(){
     Route::get('/leads',[S::class,'leads'])->name('leads');
     Route::patch('/leads/{lead}',[S::class,'mark'])->name('leads.mark');
     Route::get('/blog/posts',[AdminPostController::class,'index'])->name('admin.blog.index');
@@ -36,7 +47,7 @@ Route::get('/security',fn()=>view('page',['t'=>'Security Center','b'=>'Sensitive
 Route::get('/case-studies',fn()=>view('page',['t'=>'Case Studies','b'=>'We are documenting our first projects. Check back soon, or message us to see a live demo.']));
 Route::get('/status',function(){ try{ \Illuminate\Support\Facades\DB::select('select 1'); $ok=true; }catch(\Throwable $e){ $ok=false; } return view('page',['t'=>'System Status','b'=>($ok?'Website and database: operational.':'Database check failed.').' Checked '.now()->format('d M Y, h:i A').'.']); });
 Route::get('/policies', fn () => view('policies'));
-Route::middleware('auth.basic')->prefix('admin')->group(function(){
+Route::middleware(['auth', 'auth.session', EnsureAdmin::class])->prefix('admin')->group(function(){
     Route::get('/prospects',[C::class,'prospects']);
     Route::post('/prospects/import',[C::class,'import']);
     Route::patch('/prospects/{prospect}',[C::class,'stage']);

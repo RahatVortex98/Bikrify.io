@@ -13,6 +13,8 @@
    <a href="{{ $u }}" class="rounded-full px-4 py-2 {{ request()->is($p)?'bg-white text-brand':'text-slate-200 hover:bg-white/10' }}">{{ $l }}</a>
   @endforeach
  </nav>
+ <a href="{{ route('admin.users.index') }}" class="rounded-full px-4 py-2 text-sm text-white">Users & admins</a>
+ <form method="post" action="{{ route('admin.logout') }}">@csrf<button class="rounded-full px-4 py-2 text-sm text-white">Sign out</button></form>
  <a href="{{ route('home') }}" class="rounded-full bg-spark px-5 py-2 text-sm font-medium text-white hover:bg-orange-600">View main site</a>
 </div></header>
 <main>@yield('content')</main>
