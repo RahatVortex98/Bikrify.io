@@ -58,8 +58,10 @@
   </div>
   <div class="flex items-center gap-3">
    <a href="{{ route('blog.index') }}" class="text-sm font-medium text-brand underline">All articles</a>
+   @if($latestPosts->isNotEmpty())
    <button type="button" data-carousel-prev aria-label="Scroll to previous articles" aria-controls="latest-posts-track" class="rounded-full border border-slate-300 px-4 py-2 text-brand hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">&larr;</button>
    <button type="button" data-carousel-next aria-label="Scroll to more articles" aria-controls="latest-posts-track" class="rounded-full border border-slate-300 px-4 py-2 text-brand hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">&rarr;</button>
+   @endif
   </div>
  </div>
  @if($latestPosts->isNotEmpty())

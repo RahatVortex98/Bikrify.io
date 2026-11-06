@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\EnsureAdmin;
 
 Route::get('/admin/login', [AuthController::class, 'create'])->middleware('guest')->name('login');
-Route::post('/admin/login', [AuthController::class, 'store'])->middleware(['guest', 'throttle:5,1'])->name('admin.login.store');
+Route::post('/admin/login', [AuthController::class, 'store'])->middleware(['guest', 'throttle:admin-login'])->name('admin.login.store');
 Route::middleware(['auth', 'auth.session', EnsureAdmin::class])->prefix('admin')->group(function () {
     Route::redirect('/', '/admin/leads');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('admin.logout');
@@ -21,7 +21,7 @@ Route::redirect('/services/online-store-order-system','/services/order-managemen
 Route::redirect('/services/pos-inventory-system','/services/pos-software-bangladesh',301);
 Route::redirect('/services/custom-erp-automation','/services/custom-erp-software-bangladesh',301);
 Route::get('/services/{service:slug}',[S::class,'service'])->name('service');
-Route::post('/demo',[S::class,'demo'])->middleware('throttle:5,1')->name('demo');
+Route::post('/demo',[S::class,'demo'])->middleware('throttle:public-demo')->name('demo');
 Route::get('/sitemap.xml',[S::class,'sitemap'])->name('sitemap');
 Route::get('/blog',[B::class,'index'])->name('blog.index');
 Route::get('/blog/{post:slug}',[B::class,'show'])->name('blog.show');
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'auth.session', EnsureAdmin::class])->prefix('admin')
     Route::delete('/homepage/what-we-build/{homeBuildItem}',[AdminHomeBuildItemController::class,'destroy'])->name('admin.home-build.destroy');
 });
 use App\Http\Controllers\CrmController as C;
-Route::post('/subscribe',[C::class,'subscribe'])->middleware('throttle:5,1');
+Route::post('/subscribe',[C::class,'subscribe'])->middleware('throttle:public-subscribe');
 Route::get('/api/license/{key}',[C::class,'license'])->middleware('throttle:120,1');
 Route::get('/security',fn()=>view('page',['t'=>'Security Center','b'=>'Sensitive customer data such as ID numbers is encrypted at rest. Admin access is password-protected, form submissions are rate-limited, and we recommend regular backups for every system we build.']));
 Route::get('/case-studies',fn()=>view('page',['t'=>'Case Studies','b'=>'We are documenting our first projects. Check back soon, or message us to see a live demo.']));

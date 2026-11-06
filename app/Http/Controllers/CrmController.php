@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use App\Models\{Customer,Payment,Prospect,Subscriber};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 class CrmController extends Controller {
  const STAGES=['new'=>'New list','no_response'=>'No response','interested'=>'Interested','hot'=>'Hot (almost agreed)'];
  public function prospects(Request $r){
@@ -11,7 +12,12 @@ class CrmController extends Controller {
  }
  public function import(Request $r){
   $r->validate(['file'=>'required|file|mimes:xlsx,xls,csv|max:20480']);
-  $rows=\PhpOffice\PhpSpreadsheet\IOFactory::load($r->file('file')->getRealPath())->getActiveSheet()->toArray(null,true,true,false);
+  try {
+   $type=match(strtolower($r->file('file')->getClientOriginalExtension())) { 'xlsx'=>'Xlsx', 'xls'=>'Xls', default=>'Csv' };
+   $rows=\PhpOffice\PhpSpreadsheet\IOFactory::createReader($type)->load($r->file('file')->getRealPath())->getActiveSheet()->toArray(null,true,true,false);
+  } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
+   return back()->withErrors(['file'=>'This spreadsheet could not be read. Please upload a valid Excel or CSV file.']);
+  }
   $header=array_shift($rows);
   if (!$header) return back()->withErrors(['file'=>'The spreadsheet is empty or has no header row.'])->withInput();
   $headers=array_map(fn($x)=>strtolower(trim(str_replace(['_','-'],' ',(string)$x))),$header);
@@ -69,7 +75,7 @@ class CrmController extends Controller {
  public function create(Request $r){ return view('admin.customer-new',['p'=>Prospect::find($r->prospect)]); }
  public function store(Request $r){
   $m=fn($f)=>'required_if:plan,monthly|'.$f;
-  $d=$r->validate(['prospect_id'=>'nullable|integer','name'=>'required|max:120','phone'=>'required|max:20','site_url'=>'nullable|url','plan'=>'required|in:purchase,monthly',
+  $d=$r->validate(['prospect_id'=>'nullable|integer|exists:prospects,id','name'=>'required|string|max:120','phone'=>'required|string|max:20','site_url'=>'nullable|url:http,https|max:255','plan'=>'required|in:purchase,monthly',
    'price'=>'required_if:plan,purchase|nullable|integer|min:0','monthly_fee'=>$m('nullable|integer|min:1'),'nid'=>$m('nullable|digits_between:10,17'),
    'photo'=>$m('nullable|image|max:3072'),'pay_method'=>$m('nullable|max:40'),'pay_account'=>$m('nullable|max:60'),'paid_until'=>$m('nullable|date')]);
   if($r->hasFile('photo')) $d['photo']=$r->file('photo')->store('customer-photos','local');
@@ -79,10 +85,15 @@ class CrmController extends Controller {
  }
  public function customers(){ return view('admin.customers',['rows'=>Customer::with('payments')->latest()->get()]); }
  public function pay(Request $r,Customer $customer){
-  $amt=(int)($r->amount?:($customer->monthly_fee?:$customer->price?:0));
-  Payment::create(['customer_id'=>$customer->id,'amount'=>$amt,'paid_on'=>today()]);
-  $u=['status'=>'active']; if($customer->plan==='monthly') $u['paid_until']=max($customer->paid_until??today(),today())->copy()->addMonth();
-  $customer->update($u); return back()->with('ok','Payment recorded. Site is active.');
+  $r->merge(['amount'=>$r->filled('amount')?$r->input('amount'):($customer->monthly_fee?:$customer->price)]);
+  $d=$r->validate(['amount'=>'required|integer|min:1|max:4294967295']);
+  DB::transaction(function() use($customer,$d){
+   $customer=Customer::whereKey($customer->id)->lockForUpdate()->firstOrFail();
+   Payment::create(['customer_id'=>$customer->id,'amount'=>$d['amount'],'paid_on'=>today()]);
+   $u=['status'=>'active']; if($customer->plan==='monthly') $u['paid_until']=max($customer->paid_until??today(),today())->copy()->addMonthNoOverflow();
+   $customer->update($u);
+  });
+  return back()->with('ok','Payment recorded. Site is active.');
  }
  public function toggle(Customer $customer){ $customer->update(['status'=>$customer->status==='active'?'suspended':'active']); return back(); }
  public function photo(Customer $customer){ abort_unless($customer->photo && Storage::disk('local')->exists($customer->photo),404); return response()->file(Storage::disk('local')->path($customer->photo)); }

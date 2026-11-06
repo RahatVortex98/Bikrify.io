@@ -340,7 +340,7 @@ class SeoAndBlogTest extends TestCase
         $this->assertStringContainsString('Allow: /', $robots);
         $this->assertStringContainsString('Disallow: /admin', $robots);
         $this->assertStringContainsString('Disallow: /api', $robots);
-        $this->assertStringContainsString('Sitemap: https://bikrify.io/sitemap.xml', $robots);
+        $this->assertStringContainsString('Sitemap: https://bikrify.xyz/sitemap.xml', $robots);
     }
 
     private function wordCount(string $html): int
