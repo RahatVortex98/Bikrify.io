@@ -5,4 +5,11 @@
  --color-ink: #12296b; --color-brand: #1e3a8a; --color-spark: #f97316; --color-mist: #f4f7ff;
 }
 html { scroll-behavior: smooth; }
+.whatsapp-contact { animation: whatsapp-pulse 5s ease-out infinite; }
+@keyframes whatsapp-pulse {
+ 0% { box-shadow: 0 0 0 0 rgb(37 211 102 / 45%); }
+ 24% { box-shadow: 0 0 0 16px rgb(37 211 102 / 0%); }
+ 25%, 100% { box-shadow: 0 0 0 0 rgb(37 211 102 / 0%); }
+}
+@media (prefers-reduced-motion: reduce) { .whatsapp-contact { animation: none; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

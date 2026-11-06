@@ -77,7 +77,7 @@
   <p class="mt-7 rounded-2xl bg-mist p-6">New articles are being prepared. Visit the <a href="{{ route('blog.index') }}" class="font-medium text-brand underline">blog</a> to see published posts.</p>
  @endif
 </section>
-<section class="mx-auto max-w-4xl space-y-8 px-5 py-16">
+<section class="mx-auto max-w-6xl space-y-8 px-5 py-16">
  <div><h2 class="text-2xl font-semibold text-brand">Software should fit the way your business works</h2>
   <p class="mt-4 leading-8">Running a business often means keeping track of customer conversations, orders, stock, payments, and delivery arrangements at the same time. When the details live in separate notebooks, spreadsheets, and chat threads, it can take effort just to understand what needs attention. Bikrify helps business owners map these everyday tasks and consider software that keeps the right information together. The aim is not to add technology for its own sake. It is to make routine work easier to follow and give the people doing it a clearer record.</p></div>
  <div><h2 class="text-2xl font-semibold text-brand">Order workflows for online sellers</h2>
